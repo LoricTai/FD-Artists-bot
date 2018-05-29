@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="/home/marco/Scaricati/postgresql-42.2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/marco/Scaricati/telegrambots-3.6-jar-with-dependencies.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/marco/Scaricati/emoji-java-4.0.0.jar"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

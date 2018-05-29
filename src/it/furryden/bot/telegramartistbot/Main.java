@@ -1,5 +1,7 @@
 package it.furryden.bot.telegramartistbot;
 
+import java.sql.SQLException;
+
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -16,9 +18,10 @@ public class Main {
 	    TelegramBotsApi botsApi = new TelegramBotsApi();
 	    fd = new FurryDenArtistBot();
 	    fd.setBotId(args[0]);
-	    MySQLConfig.getInstance().setConnectionParameters(args[1], args[2], args[3], args[4]);
+	    PostgreSQLConfig.getInstance().setConnectionParameters(args[1], args[2], args[3], args[4]);
 	    Utility.setBot(fd);
 	    try {
+	    	PostgreSQLConfig.checkDB();
 	        UserManager.loadUsers();
 	        ArtistManager.loadArtists();
 	        UserManager.loadFollows();
@@ -27,6 +30,8 @@ public class Main {
 	    } catch (TelegramApiException e) {
 	        e.printStackTrace();
 	    } catch (DatabaseException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}

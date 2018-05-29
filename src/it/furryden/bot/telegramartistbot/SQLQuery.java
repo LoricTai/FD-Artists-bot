@@ -7,19 +7,19 @@ import java.sql.SQLException;
 
 
 public class SQLQuery {
-	private MySQLConfig msqlc;
+	private PostgreSQLConfig msqlc;
 	private String query;
 	private String[] params;
 
 	public SQLQuery(String query, String[] params) {
-		this.msqlc = MySQLConfig.getInstance();
+		this.msqlc = PostgreSQLConfig.getInstance();
 		this.query = query.replace("£", msqlc.getDBName());
 		this.params = params;
 
 	}
 
 	public SQLQuery(String query) {
-		this.msqlc = MySQLConfig.getInstance();
+		this.msqlc = PostgreSQLConfig.getInstance();
 		this.query = query.replace("£", msqlc.getDBName());
 		this.params = null;
 	}
