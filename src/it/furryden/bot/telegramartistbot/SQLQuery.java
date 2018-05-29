@@ -36,26 +36,18 @@ public class SQLQuery {
 
 	public ResultSet executeQuery() throws DatabaseException, SQLException {
 		PreparedStatement ps = null;
-		if (params == null) {
-			ps = (PreparedStatement) msqlc.getGenericConnection().prepareStatement(query);
-		} else {
-			ps = (PreparedStatement) msqlc.getConnection().prepareStatement(query);
-			if (params.length != 0)
-				applyParameters(ps, params);
-		}
+		ps = (PreparedStatement) msqlc.getConnection().prepareStatement(query);
+		if (params != null && params.length != 0)
+			applyParameters(ps, params);
 		ResultSet r = ps.executeQuery();
 		return r;
 	}
 
 	public void executeUpdate() throws SQLException, DatabaseException {
 		PreparedStatement ps = null;
-		if (params == null) {
-			ps = (PreparedStatement) msqlc.getGenericConnection().prepareStatement(query);
-		} else {
-			ps = (PreparedStatement) msqlc.getConnection().prepareStatement(query);
-			if (params.length != 0) {
-				applyParameters(ps, params);
-			}
+		ps = (PreparedStatement) msqlc.getConnection().prepareStatement(query);
+		if (params != null && params.length != 0) {
+			applyParameters(ps, params);
 		}
 		ps.executeUpdate();
 		return;

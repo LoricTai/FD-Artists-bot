@@ -27,7 +27,7 @@ public class ArtistManager {
 		}
 	}
 
-	public static void addArtist(User u) throws DatabaseException {
+	public static void addArtist(TelegramUser u) throws DatabaseException {
 		Artist a = new Artist(u.getNickname(), u.getChatId(), null, null, null, false, null);
 		DatabaseManager.addArtist(a);
 		artists.put(a.getId(), a);

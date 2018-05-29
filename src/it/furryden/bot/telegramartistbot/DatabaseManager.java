@@ -6,17 +6,17 @@ import java.util.ArrayList;
 
 public class DatabaseManager {
 	public static ArrayList<Artist> loadArtists() throws DatabaseException {
-		SQLQuery q = new SQLQuery("select * from (£.user as u join £.user_artist as ua on u.chat_id=ua.user) join £.artist as a on ua.info=a.idArtist");
+		SQLQuery q = new SQLQuery("select * from (telegram_user as u join telegram_user_artist as ua on u.chat_id=ua.telegram_user) join artist as a on ua.info=a.id");
 		try {
 			ResultSet r = q.executeQuery();
 			ArrayList<Artist> artists = new ArrayList<>();
 			while(r.next()) {
-				String[] tempP = new String[] {r.getString("idArtist")};
-				SQLQuery temp = new SQLQuery("select * from £.sample as s join £.artist as a on s.artist=a.idArtist where a.idArtist like ?", tempP);
+				String[] tempP = new String[] {r.getString("id")};
+				SQLQuery temp = new SQLQuery("select * from sample as s join artist as a on s.artist=a.id where a.id like ?", tempP);
 				ArrayList<String> samples = new ArrayList<>();
 				ResultSet smp = temp.executeQuery();
 				while(smp.next()) samples.add(smp.getString("sample"));
-				artists.add(new Artist(r.getString("idArtist"), r.getLong("chat_id"), r.getString("nickname"), r.getString("profilePic"), r.getString("faurl"), ((r.getInt("commStatus")==0)?false:true), samples));
+				artists.add(new Artist(r.getString("id"), r.getLong("chat_id"), r.getString("nickname"), r.getString("profile_pic"), r.getString("faurl"), ((r.getInt("comm_status")==0)?false:true), samples));
 			}
 			return artists;
 		} catch (SQLException e) {
@@ -24,9 +24,9 @@ public class DatabaseManager {
 		}
 	}
 
-	public static void updateUser(User u) throws DatabaseException {
+	public static void updateUser(TelegramUser u) throws DatabaseException {
 		String[] params = new String[] {u.getNickname(), u.getRole().toString().toLowerCase(), String.valueOf(u.getChatId())};
-		SQLQuery q = new SQLQuery("update £.user set nickname=?, role=? where chat_id like ?", params);
+		SQLQuery q = new SQLQuery("update telegram_user set nickname=?, role=? where chat_id like ?", params);
 		try {
 			q.executeUpdate();
 		} catch (SQLException e) {
@@ -34,9 +34,9 @@ public class DatabaseManager {
 		}
 	}
 	
-	public static void addUser(User u) throws DatabaseException {
+	public static void addUser(TelegramUser u) throws DatabaseException {
 		String[] params = new String[] {String.valueOf(u.getChatId()), u.getNickname()};
-		SQLQuery q = new SQLQuery("insert into £.user(chat_id, nickname) values(?,?)", params);
+		SQLQuery q = new SQLQuery("insert into telegram_user(chat_id, nickname) values(?,?)", params);
 		try {
 			q.executeUpdate();
 		} catch (SQLException e) {
@@ -44,14 +44,14 @@ public class DatabaseManager {
 		}
 	}
 
-	public static ArrayList<User> loadUsers() throws DatabaseException {
-		SQLQuery q = new SQLQuery("select * from £.user");
+	public static ArrayList<TelegramUser> loadUsers() throws DatabaseException {
+		SQLQuery q = new SQLQuery("select * from telegram_user");
 		try {
 			ResultSet r = q.executeQuery();
-			ArrayList<User> result = new ArrayList<>();
+			ArrayList<TelegramUser> result = new ArrayList<>();
 			while (r.next()) {
 				System.out.println(""+r.getLong("chat_id")+"-"+ r.getString("nickname")+"-"+r.getString("role"));
-				result.add(new User(r.getLong("chat_id"), r.getString("nickname"), Role.valueOf(r.getString("role").toUpperCase())));
+				result.add(new TelegramUser(r.getLong("chat_id"), r.getString("nickname"), Role.valueOf(r.getString("role").toUpperCase())));
 			}
 			return result;
 		} catch (SQLException e) {
@@ -62,8 +62,8 @@ public class DatabaseManager {
 	public static void addArtist(Artist a) throws DatabaseException {
 		String[] params = new String[] {a.getId()};
 		String[] params2 = new String[] {String.valueOf(a.getUserId()), a.getId()};
-		SQLQuery q = new SQLQuery("insert into £.artist(idArtist) values(?)", params);
-		SQLQuery q2 = new SQLQuery("insert into £.user_artist(user,info) values(?,?)", params2);
+		SQLQuery q = new SQLQuery("insert into artist(id) values(?)", params);
+		SQLQuery q2 = new SQLQuery("insert into telegram_user_artist(telegram_user,info) values(?,?)", params2);
 		try {
 			q.executeUpdate();
 			q2.executeUpdate();
@@ -74,7 +74,7 @@ public class DatabaseManager {
 
 	public static void updateArtist(Artist a) throws DatabaseException {
 		String[] params = new String[] {a.getProfilePic(), a.getNickname(), a.getUrl(), ((a.getCommStatus())?"1":"0"), a.getId()};
-		SQLQuery q = new SQLQuery("update £.artist set profilePic=?, nickname=?, faurl=?, commStatus=? where idArtist like ?", params);
+		SQLQuery q = new SQLQuery("update artist set profile_pic=?, nickname=?, faurl=?, comm_status=? where id like ?", params);
 		try {
 			q.executeUpdate();
 		} catch (SQLException e) {
@@ -84,7 +84,7 @@ public class DatabaseManager {
 
 	public static void addSample(Artist a, String fileId) throws DatabaseException {
 		String[] params = new String[] {fileId, a.getId()};
-		SQLQuery q = new SQLQuery("insert into £.sample(sample,artist) values(?,?)", params);
+		SQLQuery q = new SQLQuery("insert into sample(sample,artist) values(?,?)", params);
 		try {
 			q.executeUpdate();
 		} catch (SQLException e) {
@@ -92,9 +92,9 @@ public class DatabaseManager {
 		}
 	}
 	
-	public static ArrayList<Artist> loadFollows(User u) throws DatabaseException {
+	public static ArrayList<Artist> loadFollows(TelegramUser u) throws DatabaseException {
 		String[] params = new String[] {String.valueOf(u.getChatId())};
-		SQLQuery q = new SQLQuery("select * from £.follow where user like ?", params);
+		SQLQuery q = new SQLQuery("select * from follow where telegram_user like ?", params);
 		try {
 			ResultSet r = q.executeQuery();
 			ArrayList<Artist> result = new ArrayList<>();
@@ -107,9 +107,9 @@ public class DatabaseManager {
 		}
 	}
 	
-	public static void addFollow(User u, Artist a) throws DatabaseException {
+	public static void addFollow(TelegramUser u, Artist a) throws DatabaseException {
 		String[] params = new String[] {String.valueOf(u.getChatId()), a.getId()};
-		SQLQuery q = new SQLQuery("insert into £.follow(user,artist) values(?,?)", params);
+		SQLQuery q = new SQLQuery("insert into follow(telegram_user,artist) values(?,?)", params);
 		try {
 			q.executeUpdate();
 		} catch (SQLException e) {
@@ -117,9 +117,9 @@ public class DatabaseManager {
 		}
 	}
 	
-	public static void removeFollow(User u, Artist a) throws DatabaseException {
+	public static void removeFollow(TelegramUser u, Artist a) throws DatabaseException {
 		String[] params = new String[] {a.getId(), String.valueOf(u.getChatId())};
-		SQLQuery q = new SQLQuery("delete from £.follow where artist like ? and user like ?", params);
+		SQLQuery q = new SQLQuery("delete from follow where artist like ? and telegram_user like ?", params);
 		try {
 			q.executeUpdate();
 		} catch (SQLException e) {

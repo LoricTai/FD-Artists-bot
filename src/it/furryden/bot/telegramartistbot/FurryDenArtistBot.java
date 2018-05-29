@@ -153,7 +153,7 @@ public class FurryDenArtistBot extends TelegramLongPollingBot {
 	}
 
 	private void sendHelp(long chat_id) {
-		User u = UserManager.getUser(chat_id);
+		TelegramUser u = UserManager.getUser(chat_id);
 		String msg = "Lista dei comandi:\n\nComandi utente:\n/lista - visualizza lista degli artisti\n/help - visualizza questo help\n\n";
 		if(u.getRole().equals(Role.ADMIN)) msg+="Comandi amministratore:\n/ruolo <nickname> <utente|admin|artista> - Assegna all'utente il "
 												+"ruolo definito\nAdmins - visualizza lista amministratori\n\n";
@@ -163,7 +163,7 @@ public class FurryDenArtistBot extends TelegramLongPollingBot {
 
 	private void parseRole(String[] cmdP, long chat_id) {
 		if(UserManager.isAdmin(chat_id)) {
-			User u=UserManager.getUser(cmdP[1]);
+			TelegramUser u=UserManager.getUser(cmdP[1]);
 			if(u==null) Utility.sendUserNotFoundErrorMessage(chat_id);
 			else if(cmdP.length==2) {
 				Utility.sendMessage(chat_id, "L'utente @"+u.getNickname()+" ha come ruolo: "+u.getRole());

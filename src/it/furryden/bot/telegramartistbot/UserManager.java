@@ -4,23 +4,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UserManager {
-	private static HashMap<Long, User> users = new HashMap<>();
+	private static HashMap<Long, TelegramUser> users = new HashMap<>();
 	private static HashMap<Long, ArrayList<Artist>> followed = new HashMap<>();
 
 	public static void loadUsers() throws DatabaseException {
-		ArrayList<User> usrs = DatabaseManager.loadUsers();
-		for(User u: usrs) {
+		ArrayList<TelegramUser> usrs = DatabaseManager.loadUsers();
+		for(TelegramUser u: usrs) {
 			users.put(u.getChatId(), u);
 		}
 	}
 
-	public static User getUser(long chat_id) {
+	public static TelegramUser getUser(long chat_id) {
 		if(users.containsKey(chat_id)) return users.get(chat_id);
 		else return null;
 	}
 
-	public static User getUser(String nickname) {
-		for(User u: users.values()) {
+	public static TelegramUser getUser(String nickname) {
+		for(TelegramUser u: users.values()) {
 			if(u.getNickname().equals(nickname)) return u;
 		}
 		return null;
@@ -30,8 +30,8 @@ public class UserManager {
 		return (getUser(chat_id)).getRole().equals(Role.ADMIN);
 	}
 
-	public static void setRole(User u, Role role) throws DatabaseException {
-		for(User ux: users.values()) {
+	public static void setRole(TelegramUser u, Role role) throws DatabaseException {
+		for(TelegramUser ux: users.values()) {
 			if(u.equals(ux)) {
 				u.setRole(role);
 				DatabaseManager.updateUser(u);
@@ -46,9 +46,9 @@ public class UserManager {
 	}
 
 	public static void updateUser(long chatId, String nickname) throws DatabaseException {
-		User u = getUser(chatId);
+		TelegramUser u = getUser(chatId);
 		if(u == null) {
-			u = new User(chatId, nickname, Role.USER);
+			u = new TelegramUser(chatId, nickname, Role.USER);
 			DatabaseManager.addUser(u);
 			users.put(u.getChatId(), u);
 		}
@@ -60,7 +60,7 @@ public class UserManager {
 
 	public static String[] getAdminList() {
 		ArrayList<String> admins = new ArrayList<>();
-		for(User u: users.values()) {
+		for(TelegramUser u: users.values()) {
 			if(u.getRole().equals(Role.ADMIN)) admins.add(u.getNickname());
 		}
 		return admins.toArray(new String[admins.size()]);
@@ -77,7 +77,7 @@ public class UserManager {
 	}
 
 	public static void loadFollows() throws DatabaseException {
-		for(User u: users.values()) {
+		for(TelegramUser u: users.values()) {
 			followed.put(u.getChatId(), DatabaseManager.loadFollows(u));
 		}
 	}

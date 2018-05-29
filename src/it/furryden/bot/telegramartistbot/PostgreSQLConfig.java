@@ -33,21 +33,15 @@ public class PostgreSQLConfig {
 
 	public Connection getConnection() throws DatabaseException {
 		if (conn == null) {
-			try {
-				conn = DriverManager.getConnection("jdbc:postgresql://" + host + "/" + dbname + "?useSSL=false", user, pass);
+			String url = "jdbc:postgresql://" + host + "/" + dbname + "?useSSL=false";
+			System.out.println(url);
+			try {				
+				conn = DriverManager.getConnection(url, user, pass);
 			} catch (SQLException e) {
 				throw new DatabaseException(null, e, dbname);
 			} 
 		}
 		return conn;
-	}
-	
-	public Connection getGenericConnection() throws DatabaseException {
-		try {
-			return DriverManager.getConnection("jdbc:postgresql://" + host, user, pass);
-		} catch (SQLException e) {
-				throw new DatabaseException(null, e, dbname);
-		} 
 	}
 	
 	public String getDBName() {
@@ -58,72 +52,66 @@ public class PostgreSQLConfig {
 		return alias;
 	}
 	
-	public static void checkDB() throws DatabaseException, SQLException {
-		SQLQuery q = new SQLQuery("SELECT EXISTS("
-				+ "SELECT datname"
-				+ "FROM pg_catalog.pg_database"
-				+ "WHERE lower(datname) = lower('fdartists'));", null);
-		ResultSet r = q.executeQuery();
+	public static void checkDB() throws SQLException, DatabaseException {
+		SQLQuery qr = new SQLQuery("select exists (select 1 from pg_type where typname = 'type_role');", null);
+		ResultSet r = qr.executeQuery();
+		r.next();
 		if(!r.getBoolean("exists")) {
 			createDB();
-		}		
+		}
 	}
 	
 	private static void createDB() throws SQLException, DatabaseException {
-		SQLQuery q = new SQLQuery("CREATE SCHEMA 'fdartists'", null);
+		SQLQuery q = new SQLQuery("CREATE TYPE type_role AS ENUM('telegram_user','admin','artist');", null);
 		q.executeUpdate();
-		q = new SQLQuery("CREATE TABLE £.artist("
-			+ "idArtist varchar(45) not null,"
-			+ " profilePic varchar(56) default null,"
+		q = new SQLQuery("CREATE TABLE IF NOT EXISTS artist("
+			+ "id varchar(45) not null,"
+			+ "profile_pic varchar(56) default null,"
 			+ "nickname varchar(45) default null,"
 			+ "faurl varchar(100) default null,"
-			+ "commStatus tinyint(1) not null default '0',"
-			+ "PRIMA;RY KEY ('idArtists')"
-			+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8;", null);
+			+ "comm_status boolean not null default false,"
+			+ "PRIMARY KEY (id)"
+			+ ");", null);
 		q.executeUpdate();
-		q = new SQLQuery("CREATE TABLE £.'commission'("
-			+ "idCommission int nlt null auto_increment,"
+		q = new SQLQuery("CREATE TABLE IF NOT EXISTS commission("
+			+ "id SERIAL not null ,"
 			+ "artist varchar(45) not null,"
 			+ "description varchar(100) not null,"
 			+ "slots int not null default 1,"
 			+ "price int not null,"
-			+ "PRIMARY KEY('idCommission'),"
-			+ "KEY 'fkartistscomm_idx' ('artist'),"
-			+ "CONSTRAINT 'fkartistcomm' FOREIGN KEY ('artist') REFERENCES 'artist' ('idArtist') ON DELETE NO ACTION ON UPDATE NO ACTION"
-			+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8", null);
+			+ "PRIMARY KEY(id),"
+			+ "CONSTRAINT fkartistcomm FOREIGN KEY (artist) REFERENCES artist (id) ON DELETE NO ACTION ON UPDATE NO ACTION"
+			+ ")", null);
 		q.executeUpdate();
-		q = new SQLQuery(" £.CREATE TABLE `follow` ("
-			+ "  `user` varchar(45) NOT NULL,"
-			+ "  `artist` varchar(45) NOT NULL,"
-			+ "  PRIMARY KEY (`user`,`artist`)," 
-			+ "  KEY `fkartistfol_idx` (`artist`)," 
-			+ "  CONSTRAINT `fkartistfol` FOREIGN KEY (`artist`) REFERENCES `artist` (`idArtist`) ON DELETE NO ACTION ON UPDATE NO ACTION," 
-			+ "  CONSTRAINT `fkuserfol` FOREIGN KEY (`user`) REFERENCES `user` (`chat_id`) ON DELETE NO ACTION ON UPDATE NO ACTION" 
-			+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8;", null);
+		q = new SQLQuery("CREATE TABLE IF NOT EXISTS telegram_user("
+				+ "chat_id varchar(45) NOT NULL,"
+			 	+ "nickname varchar(45) DEFAULT NULL,"
+				+ "role type_role NOT NULL DEFAULT 'telegram_user',"
+				+ "PRIMARY KEY (chat_id)"
+				+ ");", null);
+			q.executeUpdate();
+		q = new SQLQuery("CREATE TABLE IF NOT EXISTS follow("
+			+ "  telegram_user varchar(45) NOT NULL,"
+			+ "  artist varchar(45) NOT NULL,"
+			+ "  PRIMARY KEY (telegram_user,artist)," 
+			+ "  CONSTRAINT fkartistfol FOREIGN KEY (artist) REFERENCES artist (id) ON DELETE NO ACTION ON UPDATE NO ACTION," 
+			+ "  CONSTRAINT fkuserfol FOREIGN KEY (telegram_user) REFERENCES telegram_user (chat_id) ON DELETE NO ACTION ON UPDATE NO ACTION" 
+			+ ");", null);
 		q.executeUpdate();
-		q = new SQLQuery(" £.CREATE TABLE `sample` ("
-			+ "`sample` varchar(56) NOT NULL,"
-			+ "`artist` varchar(45) NOT NULL,"
-			+ "PRIMARY KEY (`sample`),"
-			+ "KEY `fkartistsample_idx` (`artist`),"
-			+ "CONSTRAINT `fkartistsample` FOREIGN KEY (`artist`) REFERENCES `artist` (`idArtist`) ON DELETE NO ACTION ON UPDATE NO ACTION"
-			+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+		q = new SQLQuery("CREATE TABLE IF NOT EXISTS sample("
+			+ "sample varchar(56) NOT NULL,"
+			+ "artist varchar(45) NOT NULL,"
+			+ "PRIMARY KEY (sample),"
+			+ "CONSTRAINT fkartistsample FOREIGN KEY (artist) REFERENCES artist (id) ON DELETE NO ACTION ON UPDATE NO ACTION"
+			+ ");");
 		q.executeUpdate();
-		q = new SQLQuery(" £.CREATE TABLE `user` ("
-			+ "`chat_id` varchar(45) NOT NULL,"
-		 	+ "`nickname` varchar(45) DEFAULT NULL,"
-			+ "`role` enum('user','admin','artist') NOT NULL DEFAULT 'user',"
-			+ "PRIMARY KEY (`chat_id`)"
-			+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8;", null);
-		q.executeUpdate();
-		q = new SQLQuery(" £.CREATE TABLE `user_artist` ("
-			+ "`user` varchar(45) NOT NULL,"
-			+ "`info` varchar(45) NOT NULL,"
-			+ "PRIMARY KEY (`user`,`info`),"
-			+ "KEY `fkartist_idx` (`info`),"
-			+ "CONSTRAINT `fkartist` FOREIGN KEY (`info`) REFERENCES `artist` (`idArtist`) ON DELETE NO ACTION ON UPDATE NO ACTION,"
-			+ "CONSTRAINT `fkuser` FOREIGN KEY (`user`) REFERENCES `user` (`chat_id`) ON DELETE NO ACTION ON UPDATE NO ACTION"
-			+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8;", null);
+		q = new SQLQuery("CREATE TABLE IF NOT EXISTS telegram_user_artist("
+			+ "telegram_user varchar(45) NOT NULL,"
+			+ "info varchar(45) NOT NULL,"
+			+ "PRIMARY KEY (telegram_user,info),"
+			+ "CONSTRAINT fkartist FOREIGN KEY (info) REFERENCES artist (id) ON DELETE NO ACTION ON UPDATE NO ACTION,"
+			+ "CONSTRAINT fkuser FOREIGN KEY (telegram_user) REFERENCES telegram_user (chat_id) ON DELETE NO ACTION ON UPDATE NO ACTION"
+			+ ");", null);
 		q.executeUpdate();
 	}
 }

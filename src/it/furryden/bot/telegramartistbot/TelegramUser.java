@@ -1,11 +1,11 @@
 package it.furryden.bot.telegramartistbot;
 
-public class User {
+public class TelegramUser {
 	private String nickname;
 	private long chat_id;
 	private Role role;
 	
-	public User(long chat_id, String nickname, Role role) {
+	public TelegramUser(long chat_id, String nickname, Role role) {
 		this.nickname = nickname;
 		this.chat_id = chat_id;
 		this.role = role;
@@ -26,8 +26,8 @@ public class User {
 	@Override
 	public boolean equals(Object obj) {
 		if(obj == null) return false;
-		if(obj instanceof User) {
-			return ((User)obj).getChatId() == this.chat_id;
+		if(obj instanceof TelegramUser) {
+			return ((TelegramUser)obj).getChatId() == this.chat_id;
 		}
 		else return false;
 	}
