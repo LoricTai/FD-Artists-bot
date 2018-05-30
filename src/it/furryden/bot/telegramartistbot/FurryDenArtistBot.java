@@ -74,9 +74,9 @@ public class FurryDenArtistBot extends TelegramLongPollingBot {
 						break;
 					}
 				}
-				Utility.deleteMessage(u.getMessage().getMessageId(), String.valueOf(chat_id));
-				Utility.deleteMessage(a.getMessageId(), String.valueOf(chat_id));
-				Utility.deleteMessage(a.getPanelId(), String.valueOf(chat_id));
+				//Utility.deleteMessage(u.getMessage().getMessageId(), String.valueOf(chat_id));
+				//Utility.deleteMessage(a.getMessageId(), String.valueOf(chat_id));
+				//Utility.deleteMessage(a.getPanelId(), String.valueOf(chat_id));
 				sendPanel(chat_id);
 			} catch (DatabaseException e) {
 				Utility.sendDatabaseErrorMessage(chat_id, e.getMessage());

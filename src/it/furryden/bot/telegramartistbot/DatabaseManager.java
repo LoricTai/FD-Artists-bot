@@ -16,7 +16,7 @@ public class DatabaseManager {
 				ArrayList<String> samples = new ArrayList<>();
 				ResultSet smp = temp.executeQuery();
 				while(smp.next()) samples.add(smp.getString("sample"));
-				artists.add(new Artist(r.getString("id"), r.getLong("chat_id"), r.getString("nickname"), r.getString("profile_pic"), r.getString("faurl"), ((r.getInt("comm_status")==0)?false:true), samples));
+				artists.add(new Artist(r.getString("id"), r.getLong("chat_id"), r.getString("nickname"), r.getString("profile_pic"), r.getString("faurl"), r.getBoolean("comm_status"), samples));
 			}
 			return artists;
 		} catch (SQLException e) {
@@ -25,8 +25,8 @@ public class DatabaseManager {
 	}
 
 	public static void updateUser(TelegramUser u) throws DatabaseException {
-		String[] params = new String[] {u.getNickname(), u.getRole().toString().toLowerCase(), String.valueOf(u.getChatId())};
-		SQLQuery q = new SQLQuery("update telegram_user set nickname=?, role=? where chat_id like ?", params);
+		String[] params = new String[] {u.getNickname(), String.valueOf(u.getChatId())};
+		SQLQuery q = new SQLQuery("update telegram_user set nickname=?, role='"+u.getRole().toString().toLowerCase()+"' where chat_id = ?;", params);
 		try {
 			q.executeUpdate();
 		} catch (SQLException e) {
@@ -73,8 +73,8 @@ public class DatabaseManager {
 	}
 
 	public static void updateArtist(Artist a) throws DatabaseException {
-		String[] params = new String[] {a.getProfilePic(), a.getNickname(), a.getUrl(), ((a.getCommStatus())?"1":"0"), a.getId()};
-		SQLQuery q = new SQLQuery("update artist set profile_pic=?, nickname=?, faurl=?, comm_status=? where id like ?", params);
+		String[] params = new String[] {a.getProfilePic(), a.getNickname(), a.getUrl(), a.getId()};
+		SQLQuery q = new SQLQuery("update artist set profile_pic=?, nickname=?, faurl=?, comm_status='"+a.getCommStatus()+"' where id like ?", params);
 		try {
 			q.executeUpdate();
 		} catch (SQLException e) {

@@ -50,7 +50,7 @@ public class UserManager {
 	public static void updateUser(long chatId, String nickname) throws DatabaseException {
 		TelegramUser u = getUser(chatId);
 		if(u == null) {
-			u = new TelegramUser(chatId, nickname, Role.USER);
+			u = new TelegramUser(chatId, nickname, Role.TELEGRAM_USER);
 			DatabaseManager.addUser(u);
 			users.put(u.getChatId(), u);
 		}
@@ -85,7 +85,6 @@ public class UserManager {
 	}
 	
 	public static boolean isFirstUser() {
-		System.out.println(loadedUser != 0);
 		return loadedUser == 0;
 	}
 }

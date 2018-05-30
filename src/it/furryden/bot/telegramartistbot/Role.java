@@ -1,5 +1,5 @@
 package it.furryden.bot.telegramartistbot;
 
 public enum Role {
-	USER, ARTIST, ADMIN
+	TELEGRAM_USER, ARTIST, ADMIN
 }
