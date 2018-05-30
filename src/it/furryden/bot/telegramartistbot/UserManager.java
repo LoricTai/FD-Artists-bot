@@ -6,11 +6,13 @@ import java.util.HashMap;
 public class UserManager {
 	private static HashMap<Long, TelegramUser> users = new HashMap<>();
 	private static HashMap<Long, ArrayList<Artist>> followed = new HashMap<>();
+	private static int loadedUser = 0;
 
 	public static void loadUsers() throws DatabaseException {
 		ArrayList<TelegramUser> usrs = DatabaseManager.loadUsers();
 		for(TelegramUser u: usrs) {
 			users.put(u.getChatId(), u);
+			loadedUser++;
 		}
 	}
 
@@ -80,5 +82,10 @@ public class UserManager {
 		for(TelegramUser u: users.values()) {
 			followed.put(u.getChatId(), DatabaseManager.loadFollows(u));
 		}
+	}
+	
+	public static boolean isFirstUser() {
+		System.out.println(loadedUser != 0);
+		return loadedUser == 0;
 	}
 }

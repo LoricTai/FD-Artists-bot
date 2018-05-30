@@ -6,8 +6,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/Marco/eclipse-workspace/emoji-java-4.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/Marco/eclipse-workspace/telegrambots-3.6-jar-with-dependencies.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/Marco/eclipse-workspace/postgresql-42.2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/marco/Scaricati/emoji-java-4.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/marco/Scaricati/postgresql-42.2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/marco/Scaricati/telegrambots-3.6-jar-with-dependencies.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

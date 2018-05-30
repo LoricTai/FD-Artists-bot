@@ -23,7 +23,11 @@ public class FurryDenArtistBot extends TelegramLongPollingBot {
 
 	@Override
 	public void onUpdateReceived(Update u) {
-		manageUpdate(u);
+		try {
+			manageUpdate(u);
+		} catch (DatabaseException e) {
+			Utility.sendDatabaseErrorMessage(u.getMessage().getChatId(), "Errore database");
+		}
 	}
 
 	@Override
@@ -31,7 +35,7 @@ public class FurryDenArtistBot extends TelegramLongPollingBot {
 		return botId;
 	}
 
-	private void manageUpdate(Update u) {
+	private void manageUpdate(Update u) throws DatabaseException {
 		long chat_id = (u.hasMessage()) ? u.getMessage().getChat().getId() : u.getCallbackQuery().getMessage().getChatId();
 		String nickname =  (u.hasMessage()) ? u.getMessage().getChat().getUserName() : u.getCallbackQuery().getFrom().getUserName();
 		try {
@@ -95,25 +99,25 @@ public class FurryDenArtistBot extends TelegramLongPollingBot {
 		}
 	}
 
-	private void parseText(Update u) {
+	private void parseText(Update u) throws DatabaseException {
 		if(!(tryParseCommand(u.getMessage().getText(), u.getMessage().getChatId()))) {
 			Utility.sendCommandNotFoundErrorMessage(u.getMessage().getChatId());
 		}
 	}
 
-	private boolean tryParseCommand(String text, long chatId) {
+	private boolean tryParseCommand(String text, long chatId) throws DatabaseException {
 		switch(text.substring(0,1)) {
 			case "/": parseCommand(text.substring(1), chatId);return true;
 			default: return false;
 		}
 	}
 
-	private void parseCommand(String command, long chat_id) {
+	private void parseCommand(String command, long chat_id) throws DatabaseException {
 		String[] cmdP = command.split(" ");
 		switch(cmdP[0]) {
 			case "help": sendHelp(chat_id);break;
 			case "lista": sendArtistList(chat_id);break;
-			case "start": sendWelcome(chat_id);break;
+			case "start": if(UserManager.isFirstUser()) {UserManager.setRole(UserManager.getUser(chat_id), Role.ADMIN);}sendWelcome(chat_id);break;
 			case "pannello": sendPanel(chat_id);break;
 			case "admins": sendAdminsList(chat_id);break;
 			case "ruolo": {
